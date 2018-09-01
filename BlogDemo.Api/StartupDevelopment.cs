@@ -9,42 +9,30 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BlogDemo.Api
 {
-    public class Startup
+    public class StartupDevelopment
     {
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //注册MVC服务
             services.AddMvc();
+
+            //注册HTTPS重定向中间件
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                options.HttpsPort = 5001;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseDeveloperExceptionPage();
 
-            if (env.IsProduction())
-            {
+            //使用HTTPS重定向中间件，注意配置顺序，在UseMvc之前
+            app.UseHttpsRedirection();
 
-            }
-
-            if (env.IsStaging())
-            {
-
-            }
-
-            //判断是否是自定义的环境变量
-            if (env.IsEnvironment("xxxxx"))
-            {
-
-            }
-
-
-            //构建中间件管道
             app.UseMvc();
         }
     }
